@@ -1,36 +1,26 @@
-# CGExp
+# CUBE RUNNER — Computer Graphics Lab Course
 
-#### Description
-计算机图形学新实验
+Four lab sessions (16 class hours) that build **one complete OpenGL 3D game demo**,
+instead of four isolated experiments.
 
-#### Software Architecture
-Software architecture description
+Students role-play as **Mingyu**, a C++ intern at fictional game studio
+*StarDome Games*, completing weekly work orders toward a Game Jam entry:
 
-#### Installation
+| Week | Lab | Topic | Student-implemented (hollowed-out) parts |
+|------|-----|-------|------------------------------------------|
+| 1 | `lab1_character` | Character modeling & geometric transforms | translate/scale/rotate matrices, hierarchical limb assembly |
+| 2 | `lab2_world` | Scene modeling & lighting | scene placement matrices, Phong lighting in GLSL |
+| 3 | `lab3_walk` | Walking & viewing transforms | lookAt, perspective, camera-relative movement, third-person camera |
+| 4 | `lab4_actions` | Actions: run, jump, collision | animation state machine, jump kinematics, AABB intersection |
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+Tech stack: **C++20 · OpenGL 4.1 Core Profile · GLFW · CMake**.
+Each lab ships a runnable `starter/` (with `TODO` holes) and a full `solution/`.
+Lecture slides are in [Marp](https://marp.app/) Markdown (`slides.md`), lab manuals
+in `guide.md` (Chinese).
 
-#### Instructions
+```bash
+cmake -B build && cmake --build build -j
+./build/lab1_starter
+```
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### Contribution
-
-1.  Fork the repository
-2.  Create Feat_xxx branch
-3.  Commit your code
-4.  Create Pull Request
-
-
-#### Gitee Feature
-
-1.  You can use Readme\_XXX.md to support different languages, such as Readme\_en.md, Readme\_zh.md
-2.  Gitee blog [blog.gitee.com](https://blog.gitee.com)
-3.  Explore open source project [https://gitee.com/explore](https://gitee.com/explore)
-4.  The most valuable open source project [GVP](https://gitee.com/gvp)
-5.  The manual of Gitee [https://gitee.com/help](https://gitee.com/help)
-6.  The most popular members  [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+See [README.md](README.md) (Chinese) for full documentation.
