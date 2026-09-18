@@ -186,7 +186,7 @@ robot.position += dir * 0.1f;             // ✘ 每帧 0.1 米
 
 ```cpp
 vec3 front{ sin(camYaw), 0,  cos(camYaw) };   // 镜头的"前"
-vec3 right{ cos(camYaw), 0, -sin(camYaw) };   // front 绕 Y 转 -90°
+vec3 right{ -cos(camYaw), 0, sin(camYaw) };   // front 绕 Y 转 +90°
 
 vec3 dir = normalize(front * fwd + right * side);
 robot.position += dir * (walkSpeed * dt);

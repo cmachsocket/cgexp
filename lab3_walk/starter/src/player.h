@@ -41,7 +41,7 @@ public:
             // ② 相机空间 → 世界空间
             //    相机水平朝向 camYaw 定义了"前"向量与"右"向量：
             //       front = (sin(camYaw), 0, cos(camYaw))
-            //       right = (cos(camYaw), 0, -sin(camYaw))   （front 绕 Y 转 -90°）
+            //       right = (-cos(camYaw), 0, sin(camYaw))   （front 绕 Y 转 +90°）
             //
             //    vec3 front{ ??? };
             //    vec3 right{ ??? };

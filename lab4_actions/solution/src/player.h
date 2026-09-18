@@ -128,7 +128,7 @@ public:
 
         if (moving) {
             vec3 front{std::sin(in.camYaw), 0.0f, std::cos(in.camYaw)};
-            vec3 right{std::cos(in.camYaw), 0.0f, -std::sin(in.camYaw)};
+            vec3 right{-std::cos(in.camYaw), 0.0f, std::sin(in.camYaw)};
             vec3 dir = normalize(front * fwd + right * side);
 
             // 试探移动 + AABB 碰撞：X/Z 轴分开处理，撞墙还能沿墙滑动

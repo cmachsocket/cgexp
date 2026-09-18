@@ -107,7 +107,7 @@ robot.position += dir * 0.1f;             // ✘ 每帧走 0.1 米
 
 ```
 front = ( sin(camYaw), 0, cos(camYaw) )     镜头的"前"（水平投影）
-right = ( cos(camYaw), 0, -sin(camYaw) )    镜头的"右"（front 绕 Y 转 -90°）
+right = ( -cos(camYaw), 0, sin(camYaw) )    镜头的"右"（front 绕 Y 转 +90°）
 
 移动方向 dir = normalize(front·W/S分量 + right·A/D分量)
 ```

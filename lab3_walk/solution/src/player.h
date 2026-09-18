@@ -38,9 +38,9 @@ public:
             // ── 第 2 步：相机空间 → 世界空间 ──
             // 相机水平朝向 camYaw 定义了"前"向量与"右"向量：
             //    front = (sin(camYaw), 0, cos(camYaw))
-            //    right = (cos(camYaw), 0, -sin(camYaw))   （front 绕 Y 转 -90°）
+            //    right = (-cos(camYaw), 0, sin(camYaw))   （front 绕 Y 转 +90°）
             vec3 front{std::sin(in.camYaw), 0.0f, std::cos(in.camYaw)};
-            vec3 right{std::cos(in.camYaw), 0.0f, -std::sin(in.camYaw)};
+            vec3 right{-std::cos(in.camYaw), 0.0f, std::sin(in.camYaw)};
 
             // 期望移动方向（归一化，斜向走不会变成 √2 倍速）
             vec3 dir = normalize(front * fwd + right * side);
