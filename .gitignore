@@ -36,3 +36,6 @@ build/
 out/
 cmake-build-*/
 .vs/
+
+.claude/
+.vscode/
