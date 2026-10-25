@@ -37,6 +37,7 @@ struct Robot {
     float legSwingL = 0.0f, legSwingR = 0.0f;
     float headYaw = 0.0f;
     float crouch = 0.0f;
+    float dickAngle = 2.356f;
 
     // 身高约 1.5 米：脚底 y=0，头顶 y≈1.42+0.16
     void draw(const fw::Shader& sh, const fw::Mesh& cube) const {
@@ -71,19 +72,31 @@ struct Robot {
         // mat4 lArm = root * ??? ;
         // part(lArm * ??? , 0.16f, 0.36f, 0.70f);
 
+        mat4 lArm = root * translate(-0.32f, 1.15f, 0) * rotateZ(-armLiftL) * rotateX(-armSwingL); // 再旋转，平移到该去的位置
+        part(lArm * translate(0, -0.30f, 0) * scale(0.14f, 0.50f, 0.14f), 0.16f, 0.36f, 0.70f); //这里是先做的，先缩放然后确立中心
         // ====== TODO(明宇) 工单 SD-102-b：右臂 ======
         // 镜像左臂：肩关节 x 取 +0.32，侧抬用 Rz(+armLiftR)（方向相反才对称）
-
+        mat4 rArm = root * translate(0.32f, 1.15f, 0) * rotateZ(armLiftR) * rotateX(-armSwingR);
+        part(rArm * translate(0, -0.30f, 0) * scale(0.14f, 0.50f, 0.14f), 0.16f, 0.36f, 0.70f);
         // ====== TODO(明宇) 工单 SD-102-c：左腿 ======
         // 规格书：髋关节在 (-0.13, 0.62, 0)，腿杆尺寸 0.16×0.60×0.16，
         //         从髋关节垂下（中心偏移 -0.31），颜色 (0.22, 0.25, 0.33)
         // 前后摆动用 Rx(-legSwingL)
-
+        mat4 lLeg = root * translate(-0.13f, 0.62f, 0) * rotateX(-legSwingL);
+        part(lLeg * translate(0, -0.31f, 0) * scale(0.16f, 0.60f, 0.16f), 0.22f, 0.25f, 0.33f);
         // ====== TODO(明宇) 工单 SD-102-d：右腿 ======
         // 镜像左腿：髋关节 x 取 +0.13
+        mat4 rLeg = root * translate(0.13f, 0.62f, 0) * rotateX(-legSwingR);
+        part(rLeg * translate(0, -0.31f, 0) * scale(0.16f, 0.60f, 0.16f), 0.22f, 0.25f, 0.33f);
+
+        // 髋关节在 (-0.13, 0.62, 0)
+        // 大小我自有定夺。
+        mat4 Dick = root * translate(0, 0.62f, 0) * rotateX(-dickAngle);
+        part(Dick * translate(0, -0.41f, 0) * scale(0.10f, 0.90f, 0.10f), 0.98f, 0.83f, 0.60f);
 
         // 验收自查：按 3 进入 T-pose，双臂应该水平伸直、绕"肩膀"旋转；
         //           如果手臂绕自己的中心转（转成了螺旋桨），说明 T(偏移) 的
         //           位置放错了——回去检查乘法顺序。
+
     }
 };

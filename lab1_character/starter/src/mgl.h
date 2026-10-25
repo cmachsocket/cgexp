@@ -14,6 +14,7 @@
 
 #include <cmath>
 
+
 namespace mgl {
 
 constexpr float PI = 3.14159265358979f;
@@ -115,7 +116,9 @@ struct mat4 {
 // 想一想：为什么 3×3 矩阵做不到平移，非要用 4×4 + 齐次坐标？
 inline mat4 translate(float tx, float ty, float tz) {
     mat4 r = mat4::identity();
-    (void)tx; (void)ty; (void)tz; // TODO: 删掉这行，填入平移分量
+    r.at(0, 3) = tx;
+    r.at(1, 3) = ty;
+    r.at(2, 3) = tz;
     return r;
 }
 
@@ -130,7 +133,9 @@ inline mat4 translate(const vec3& t) { return translate(t.x, t.y, t.z); }
 //      | 0  0  0  1 |
 inline mat4 scale(float sx, float sy, float sz) {
     mat4 r = mat4::identity();
-    (void)sx; (void)sy; (void)sz; // TODO: 删掉这行，填入缩放分量
+    r.at(0, 0) = sx;
+    r.at(1, 1) = sy;
+    r.at(2, 2) = sz;
     return r;
 }
 
@@ -143,7 +148,11 @@ inline mat4 scale(float sx, float sy, float sz) {
 //      | 0  0     0    1 |
 inline mat4 rotateX(float angle) {
     mat4 r = mat4::identity();
-    (void)angle; // TODO: c = cos(angle), s = sin(angle)，按上面的矩阵填 4 个数
+    float c = cos(angle), s = sin(angle);
+    r.at(1, 1) = c;
+    r.at(1, 2) = -s;
+    r.at(2, 1) = s;
+    r.at(2, 2) = c;
     return r;
 }
 
@@ -158,7 +167,11 @@ inline mat4 rotateX(float angle) {
 // 注意：-sin 的位置和 rotateX/rotateZ 不一样！想想为什么（提示：轮换 X→Y→Z→X）
 inline mat4 rotateY(float angle) {
     mat4 r = mat4::identity();
-    (void)angle; // TODO
+    float c = cos(angle), s = sin(angle);
+    r.at(0, 0) = c;
+    r.at(0, 2) = s;
+    r.at(2, 0) = -s;
+    r.at(2, 2) = c;
     return r;
 }
 
@@ -171,7 +184,11 @@ inline mat4 rotateY(float angle) {
 //      | 0     0    0  1 |
 inline mat4 rotateZ(float angle) {
     mat4 r = mat4::identity();
-    (void)angle; // TODO
+    float c = cos(angle), s = sin(angle);
+    r.at(0, 0) = c;
+    r.at(0, 1) = -s;
+    r.at(1, 0) = s;
+    r.at(1, 1) = c;
     return r;
 }
 
