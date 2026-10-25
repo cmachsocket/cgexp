@@ -26,7 +26,8 @@
 #include <mesh.h>
 #include <shader.h>
 
-struct Robot {
+struct Robot
+{
     // 世界位姿
     mgl::vec3 position{0.0f, 0.0f, 0.0f};
     float yaw = 0.0f; // 绕 Y 轴朝向。yaw=0 时面朝 +Z（眼罩所在的一侧）
@@ -40,10 +41,12 @@ struct Robot {
     float dickAngle = 2.356f;
 
     // 身高约 1.5 米：脚底 y=0，头顶 y≈1.42+0.16
-    void draw(const fw::Shader& sh, const fw::Mesh& cube) const {
+    void draw(const fw::Shader &sh, const fw::Mesh &cube) const
+    {
         using namespace mgl;
 
-        auto part = [&](const mat4& model, float r, float g, float b) {
+        auto part = [&](const mat4 &model, float r, float g, float b)
+        {
             sh.setMat4("uModel", model.data());
             sh.setVec3("uColor", r, g, b);
             cube.draw();
@@ -63,8 +66,15 @@ struct Robot {
         // 眼罩：贴在头的 +Z 面（这就是"脸"的方向）
         part(head * translate(0, 0.20f, 0.165f) * scale(0.24f, 0.08f, 0.02f),
              0.12f, 0.12f, 0.18f);
-        part(head * translate(0, 0.05f, 0.165f) * rotateZ(0.7854f)  * scale(0.14f, 0.04f, 0.02f),
+        // mouse
+        part(head * translate(0, 0.05f, 0.165f) * rotateZ(0.7854f) * scale(0.14f, 0.04f, 0.02f),
              0.12f, 0.12f, 0.18f);
+        // caps
+        for (int i = 1; i <= 10; i++)
+        {
+            part(head * translate(0, 0.28f+i*0.10f, 0) * scale(0.38f, 0.08f, 0.38f),
+                 0.12f, 0.12f, 0.18f);
+        }
 
         // ====== TODO(明宇) 工单 SD-102-a：左臂 ======
         // 规格书：肩关节在 (-0.32, 1.15, 0)，臂杆尺寸 0.14×0.50×0.14，
@@ -75,7 +85,7 @@ struct Robot {
         // part(lArm * ??? , 0.16f, 0.36f, 0.70f);
 
         mat4 lArm = root * translate(-0.32f, 1.15f, 0) * rotateZ(-armLiftL) * rotateX(-armSwingL); // 再旋转，平移到该去的位置
-        part(lArm * translate(0, -0.30f, 0) * scale(0.14f, 0.50f, 0.14f), 0.16f, 0.36f, 0.70f); //这里是先做的，先缩放然后确立中心
+        part(lArm * translate(0, -0.30f, 0) * scale(0.14f, 0.50f, 0.14f), 0.16f, 0.36f, 0.70f);    // 这里是先做的，先缩放然后确立中心
         // ====== TODO(明宇) 工单 SD-102-b：右臂 ======
         // 镜像左臂：肩关节 x 取 +0.32，侧抬用 Rz(+armLiftR)（方向相反才对称）
         mat4 rArm = root * translate(0.32f, 1.15f, 0) * rotateZ(armLiftR) * rotateX(-armSwingR);
@@ -99,6 +109,5 @@ struct Robot {
         // 验收自查：按 3 进入 T-pose，双臂应该水平伸直、绕"肩膀"旋转；
         //           如果手臂绕自己的中心转（转成了螺旋桨），说明 T(偏移) 的
         //           位置放错了——回去检查乘法顺序。
-
     }
 };
