@@ -63,6 +63,8 @@ struct Robot {
         // 眼罩：贴在头的 +Z 面（这就是"脸"的方向）
         part(head * translate(0, 0.20f, 0.165f) * scale(0.24f, 0.08f, 0.02f),
              0.12f, 0.12f, 0.18f);
+        part(head * translate(0, 0.05f, 0.165f) * rotateZ(0.7854f)  * scale(0.14f, 0.04f, 0.02f),
+             0.12f, 0.12f, 0.18f);
 
         // ====== TODO(明宇) 工单 SD-102-a：左臂 ======
         // 规格书：肩关节在 (-0.32, 1.15, 0)，臂杆尺寸 0.14×0.50×0.14，
@@ -92,7 +94,7 @@ struct Robot {
         // 髋关节在 (-0.13, 0.62, 0)
         // 大小我自有定夺。
         mat4 Dick = root * translate(0, 0.62f, 0) * rotateX(-dickAngle);
-        part(Dick * translate(0, -0.41f, 0) * scale(0.10f, 0.90f, 0.10f), 0.98f, 0.83f, 0.60f);
+        part(Dick * translate(0, -0.41f, 0) * scale(0.10f, 1.50f, 0.10f), 0.98f, 0.83f, 0.60f);
 
         // 验收自查：按 3 进入 T-pose，双臂应该水平伸直、绕"肩膀"旋转；
         //           如果手臂绕自己的中心转（转成了螺旋桨），说明 T(偏移) 的
