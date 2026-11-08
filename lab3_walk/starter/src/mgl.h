@@ -204,7 +204,13 @@ inline mat4 rotateZ(float angle) {
 // 为什么第三行是 -f？因为 OpenGL 相机看向自己的 -Z 方向。
 inline mat4 lookAt(const vec3& eye, const vec3& center, const vec3& up) {
     mat4 r = mat4::identity();
-    (void)eye; (void)center; (void)up; // TODO: 删掉这行，按上面两步实现
+    auto f = normalize(center - eye);
+    auto s = normalize(cross(f, up));
+    auto u = cross(s, f);
+    r.at(0, 0) = s.x; r.at(0, 1) = s.y; r.at(0, 2) = s.z; r.at(0, 3) = -dot(s, eye);
+    r.at(1, 0) = u.x; r.at(1, 1) = u.y; r.at(1, 2) = u.z; r.at(1, 3) = -dot(u, eye);
+    r.at(2, 0) = -f.x; r.at(2, 1) = -f.y; r.at(2, 2) = -f.z; r.at(2, 3) = dot(f, eye);
+    r.at(3, 3) = 1.0f;
     return r;
 }
 
@@ -225,7 +231,12 @@ inline mat4 lookAt(const vec3& eye, const vec3& center, const vec3& up) {
 // 硬件做完 xyz÷w 后，远处的东西就自然变小了。讲义 3.4 节有完整推导。
 inline mat4 perspective(float fovy, float aspect, float zNear, float zFar) {
     mat4 r; // 全零矩阵（注意这里故意不是 identity！）
-    (void)fovy; (void)aspect; (void)zNear; (void)zFar; // TODO: 按上表填 5 个数
+    float t = 1.0f / std::tan(fovy / 2.0f);
+    r.at(0, 0) = t / aspect;
+    r.at(1, 1) = t;
+    r.at(2, 2) = (zFar + zNear) / (zNear - zFar);
+    r.at(2, 3) = 2.0f * zFar * zNear / (zNear - zFar);
+    r.at(3, 2) = -1.0f;
     return r;
 }
 

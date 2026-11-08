@@ -53,9 +53,19 @@ public:
         // 验收标准：鼠标左右滑，镜头绕角色转一圈；上下滑，从俯视到平视；
         //           小宇走动时镜头始终跟着，不抖、不穿地、不翻跟头。
 
-        (void)focus; (void)mouseDX; (void)mouseDY; // TODO: 实现后删掉这行
-        target = {0.0f, 1.0f, 0.0f};               // TODO: 占位——盯着镇中心不放
-        eye = {0.0f, 3.0f, 10.0f};                 // TODO: 占位——钉死的监控探头
+        yaw -= mouseDX * 0.003f;
+        pitch -= mouseDY * 0.003f;
+        const float pitchLimitMin = radians(-15.0f);
+        const float pitchLimitMax = radians(65.0f);
+        if (pitch < pitchLimitMin) pitch = pitchLimitMin;
+        if (pitch > pitchLimitMax) pitch = pitchLimitMax;
+        target = focus + mgl::vec3{0.0f, 1.1f, 0.0f};
+        mgl::vec3 offset;
+        offset.x = distance * std::cos(pitch) * std::sin(yaw);
+        offset.y = distance * std::sin(pitch);
+        offset.z = distance * std::cos(pitch) * std::cos(yaw);
+        eye = target + offset;
+        if (eye.y < 0.2f) eye.y = 0.2f;
     }
 
     mgl::mat4 viewMatrix() const {

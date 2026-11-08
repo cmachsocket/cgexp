@@ -56,7 +56,14 @@ public:
             // ⑤ 平滑转身：atan2 把方向向量变回角度（注意参数顺序 x, z）
             //    float targetYaw = std::atan2(dir.x, dir.z);
             //    robot.yaw = smoothTurn(robot.yaw, targetYaw, 12.0f * dt);
-
+            auto front = mgl::vec3{std::sin(in.camYaw), 0.0f, std::cos(in.camYaw)};
+            auto right = mgl::vec3{-std::cos(in.camYaw), 0.0f, std::sin(in.camYaw)};
+            auto dir = front * fwd + right * side;
+            dir = dir * (1.0f / std::sqrt(dir.x * dir.x + dir.z * dir.z)); // normalize
+            robot.position += dir * (walkSpeed * dt);
+            float targetYaw = std::atan2(dir.x, dir.z);
+            robot.yaw = smoothTurn(robot.yaw, targetYaw, 12.0f * dt);
+        
             // ── 行走动画（引擎组代写，相位由累计路程驱动）──
             distance_ += walkSpeed * dt;
             float phase = distance_ * 5.5f;
@@ -65,12 +72,14 @@ public:
             robot.legSwingR = -swing * radians(30.0f);
             robot.armSwingL = -swing * radians(24.0f); // 手臂与腿反相摆动
             robot.armSwingR = swing * radians(24.0f);
+            robot.dickAngle = radians(135.0f) + swing * radians(10.0f);
         } else {
             // 停下：四肢平滑归零（直接置零会"啪"地立正，很出戏）
             robot.legSwingL = mgl::lerp(robot.legSwingL, 0.0f, 10.0f * dt);
             robot.legSwingR = mgl::lerp(robot.legSwingR, 0.0f, 10.0f * dt);
             robot.armSwingL = mgl::lerp(robot.armSwingL, 0.0f, 10.0f * dt);
             robot.armSwingR = mgl::lerp(robot.armSwingR, 0.0f, 10.0f * dt);
+            robot.dickAngle = mgl::lerp(robot.dickAngle, radians(135.0f), 10.0f * dt);
         }
 
         // 简易边界：别走出方块镇的地面
