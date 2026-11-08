@@ -20,8 +20,9 @@
 #include <GLFW/glfw3.h>
 
 #include <cstdio>
+#include <random>
 
-static const char* kVertexSrc = R"(#version 410 core
+static const char *kVertexSrc = R"(#version 410 core
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec2 aUV;
@@ -51,7 +52,7 @@ void main() {
 //     漫反射 diffuse  = kd · max(N·L, 0) · lightColor
 //     高光   specular = ks · max(V·R, 0)^shininess · lightColor
 // ---------------------------------------------------------------------------
-static const char* kFragmentSrc = R"(#version 410 core
+static const char *kFragmentSrc = R"(#version 410 core
 in vec3 vWorldPos;
 in vec3 vNormal;
 in vec2 vUV;
@@ -95,14 +96,23 @@ void main() {
     //
     // 验收技巧：按 L 让太阳转起来——如果亮暗随太阳方向平滑变化、
     //           屋顶能看到刺眼的小亮斑，说明三个分量都对了。
-
-    vec3 color = base * 0.3; // TODO: 删掉这行占位代码，换成 Phong 合成结果
+    vec3 ambient = 0.28 * uLightColor;
+    float diff = max(dot(N, L), 0.0);
+    vec3 diffuse = 0.75 * diff * uLightColor;
+    vec3 V = normalize(uViewPos - vWorldPos);
+    vec3 R = reflect(-L, N);
+    float spec = pow(max(dot(V, R), 0.0), 32.0);
+    vec3 specular = 0.30 * spec * uLightColor;
+    vec3 color = (ambient + diffuse) * base + specular;
 
     FragColor = vec4(color, 1.0);
 }
 )";
 
-int main() {
+int main()
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
     std::printf(
         "==============================================\n"
         " CUBE RUNNER | 第 2 周：方块镇竣工验收\n"
@@ -118,35 +128,67 @@ int main() {
 
     // 草地纹理：程序生成的双色棋盘格（美术组：这叫"极简像素风"）
     GLuint grassTex = fw::makeCheckerTexture(256, 8,
-                                             96, 160, 80,    // 浅草绿
-                                             76, 138, 66);   // 深草绿
+                                             96, 160, 80,  // 浅草绿
+                                             76, 138, 66); // 深草绿
 
     World world;
     world.build();
 
-    Robot robot; // 主角先站在镇中心当"比例参照物"
+    Robot robot;                           // 主角先站在镇中心当"比例参照物"
     robot.armLiftR = mgl::radians(150.0f); // 跟验收的老周打个招呼
 
     float orbit = 0.0f, camHeight = 6.0f;
     bool orbiting = true, wireframe = false;
     float sunAngle = mgl::radians(35.0f);
     bool sunMoving = false;
-
-    while (app.beginFrame()) {
+    bool randomSunLight = false;
+    std::uniform_real_distribution<float> dist01(0.0f, 1.0f);
+    auto lightColor = mgl::vec3{1.0f, 0.98f, 0.92f};
+    float randomTimer = 0.0f;
+    auto targetLightColor = lightColor;
+    const float kRandomInterval = 5.15f;
+    while (app.beginFrame())
+    {
         // --- 输入 ---
-        if (app.keyPressed(GLFW_KEY_SPACE)) orbiting = !orbiting;
-        if (app.keyPressed(GLFW_KEY_L)) sunMoving = !sunMoving;
-        if (app.keyPressed(GLFW_KEY_TAB)) {
+        if (app.keyPressed(GLFW_KEY_SPACE))
+            orbiting = !orbiting;
+        if (app.keyPressed(GLFW_KEY_L))
+            sunMoving = !sunMoving;
+        if (app.keyPressed(GLFW_KEY_R))
+            randomSunLight = !randomSunLight;
+        if (app.keyPressed(GLFW_KEY_TAB))
+        {
             wireframe = !wireframe;
             glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
         }
-        if (orbiting) orbit += mgl::radians(12.0f) * app.dt();
-        if (app.keyDown(GLFW_KEY_LEFT))  orbit -= mgl::radians(60.0f) * app.dt();
-        if (app.keyDown(GLFW_KEY_RIGHT)) orbit += mgl::radians(60.0f) * app.dt();
-        if (app.keyDown(GLFW_KEY_UP))    camHeight += 4.0f * app.dt();
-        if (app.keyDown(GLFW_KEY_DOWN))  camHeight -= 4.0f * app.dt();
-        if (camHeight < 1.0f) camHeight = 1.0f;
-        if (sunMoving) sunAngle += mgl::radians(20.0f) * app.dt();
+        if (orbiting)
+            orbit += mgl::radians(12.0f) * app.dt();
+        if (app.keyDown(GLFW_KEY_LEFT))
+            orbit -= mgl::radians(60.0f) * app.dt();
+        if (app.keyDown(GLFW_KEY_RIGHT))
+            orbit += mgl::radians(60.0f) * app.dt();
+        if (app.keyDown(GLFW_KEY_UP))
+            camHeight += 4.0f * app.dt();
+        if (app.keyDown(GLFW_KEY_DOWN))
+            camHeight -= 4.0f * app.dt();
+        if (camHeight < 1.0f)
+            camHeight = 1.0f;
+        if (sunMoving)
+            sunAngle += mgl::radians(20.0f) * app.dt();
+        if (randomSunLight)
+        {
+            // 随机生成光照颜色
+            randomTimer += app.dt();
+            if (randomTimer >= kRandomInterval)
+            {
+                randomTimer -= kRandomInterval;
+                targetLightColor = mgl::vec3{dist01(gen), dist01(gen), dist01(gen)};
+            }
+            // 光照颜色平滑过渡
+            lightColor.x = mgl::lerp(lightColor.x, targetLightColor.x, 0.5f * app.dt());
+            lightColor.y = mgl::lerp(lightColor.y, targetLightColor.y, 0.5f * app.dt());
+            lightColor.z = mgl::lerp(lightColor.z, targetLightColor.z, 0.5f * app.dt());
+        }
 
         // --- 相机（引擎组临时支援：绕镇中心的环绕相机，第 3 周由你接管）---
         const float radius = 14.0f;
@@ -164,7 +206,7 @@ int main() {
         shader.setMat4("uView", view.data());
         shader.setMat4("uProj", proj.data());
         shader.setVec3("uLightDir", lightDir.x, lightDir.y, lightDir.z);
-        shader.setVec3("uLightColor", 1.0f, 0.98f, 0.92f);
+        shader.setVec3("uLightColor", lightColor.x, lightColor.y, lightColor.z);
         shader.setVec3("uViewPos", eye.x, eye.y, eye.z);
         shader.setInt("uTex", 0);
 

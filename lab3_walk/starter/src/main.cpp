@@ -23,6 +23,7 @@
 #include <GLFW/glfw3.h>
 
 #include <cstdio>
+#include <random>
 
 static const char* kVertexSrc = R"(#version 410 core
 layout(location = 0) in vec3 aPos;
@@ -79,6 +80,8 @@ void main() {
 )";
 
 int main() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
     std::printf(
         "==============================================\n"
         " CUBE RUNNER | 第 3 周：小宇的第一步\n"
@@ -101,11 +104,19 @@ int main() {
     FreeCamera freeCam;
     bool useFreeCam = false;
     bool wireframe = false;
+    std::uniform_real_distribution<float> dist01(0.0f, 1.0f);
+    auto lightColor = mgl::vec3{1.0f, 0.98f, 0.92f};
+    float randomTimer = 0.0f;
+    auto targetLightColor = lightColor;
+    const float kRandomInterval = 5.15f;
+    bool randomSunLight = false;
 
     app.setMouseCaptured(true); // 鼠标交给相机
 
     while (app.beginFrame()) {
         if (app.keyPressed(GLFW_KEY_C)) useFreeCam = !useFreeCam;
+        if (app.keyPressed(GLFW_KEY_R))
+            randomSunLight = !randomSunLight;
         if (app.keyPressed(GLFW_KEY_TAB)) {
             wireframe = !wireframe;
             glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
@@ -113,7 +124,20 @@ int main() {
 
         mgl::mat4 view;
         mgl::vec3 eye;
-
+        if (randomSunLight)
+        {
+            // 随机生成光照颜色
+            randomTimer += app.dt();
+            if (randomTimer >= kRandomInterval)
+            {
+                randomTimer -= kRandomInterval;
+                targetLightColor = mgl::vec3{dist01(gen), dist01(gen), dist01(gen)};
+            }
+            // 光照颜色平滑过渡
+            lightColor.x = mgl::lerp(lightColor.x, targetLightColor.x, 0.5f * app.dt());
+            lightColor.y = mgl::lerp(lightColor.y, targetLightColor.y, 0.5f * app.dt());
+            lightColor.z = mgl::lerp(lightColor.z, targetLightColor.z, 0.5f * app.dt());
+        }
         if (useFreeCam) {
             // 自由相机模式：角色站桩，你飞来飞去检查场景
             freeCam.update(float(app.mouseDX()), float(app.mouseDY()),
@@ -150,7 +174,7 @@ int main() {
         shader.setMat4("uView", view.data());
         shader.setMat4("uProj", proj.data());
         shader.setVec3("uLightDir", lightDir.x, lightDir.y, lightDir.z);
-        shader.setVec3("uLightColor", 1.0f, 0.98f, 0.92f);
+        shader.setVec3("uLightColor", lightColor.x, lightColor.y, lightColor.z);
         shader.setVec3("uViewPos", eye.x, eye.y, eye.z);
         shader.setInt("uTex", 0);
 
